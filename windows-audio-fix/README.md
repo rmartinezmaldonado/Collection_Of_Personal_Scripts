@@ -25,3 +25,14 @@ compilation terminated.
 From what I found, the Linux/UNIX environment is incompatible with the Windows SDK (Software Development Kits).
 
 As such, I'll need to use whatever tool to make the Windows SDK workable with Linux/UNIX. Yay.
+
+# How to get this to work
+
+You will need to install MinGW (Minimum GNU for Windows) to get access to `windows.h` and the Microsoft Windows API headers.
+
+Simplist way of doing this is to install `mingw-w64 GCC` through (MSYS2)[https://www.msys2.org/]. The site itself is helpful enough on giving the instructions to doing this.
+
+After that, open the Command Prompt as Administrator and compile the following:
+```
+g++ WindowsAudioFix.cpp -o test.exe
+```
