@@ -12,11 +12,6 @@ Aside from my personal grievances, this is also a personal pet project that woul
 # Why does this exist?
 In all honesty? It's a pet project of mine. The truth is that this file can be simplified by using the `Restart-Service` PowerShell command. This is mainly for me to explore how Windows APIs connected with the Windows Service Control Manager (SCM) work, ever since I learned and analyzed them in my C++ WannaCry reverse-engineering project.
 
-### The solution:
-From what I found, the Linux/UNIX environment is incompatible with the Windows SDK (Software Development Kits).
-
-As such, I'll need to use whatever tool to make the Windows SDK workable with Linux/UNIX. Yay.
-
 # How to get this to work
 
 You will need to install MinGW (Minimum GNU for Windows) to get access to `windows.h` and the Microsoft Windows API headers.
