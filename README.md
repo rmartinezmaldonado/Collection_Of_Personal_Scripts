@@ -7,6 +7,9 @@ Each folder will have a README.md to explain the purpose of each script as well 
 
 Below is a high-level overview of each directory:
 ---
+# download-organizer (ongoing, name will be changed to in the forseeable future)
+A bash script that organizes files within the target directory itself (currently the Downloads folder, but will be updated), but NOT any with subdirectories (so it shouldn't target any of your downloads/tools that have critical files). These files will be organized by their file extensions.
+
 # file-archiving (ongoing)
 This is a Bash script that is designed to help me organize my files, particularly my classwork from CU Boulder.
 
