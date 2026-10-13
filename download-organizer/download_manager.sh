@@ -25,9 +25,8 @@ printf "\n\n"
 		# Currently testing scope of the following
 		test="*.${extension}"
 
-		# Check if file extension folder exists, and create it if not
-		storage="${extension}_dir"
-		# TODO: Create folder once dry run is successful
+		# Create the folder that stores target files if it didn't exist
+		# mkdir -p -v "${extension}_dir"
 
 		# Dry run of ls (until I'm sure mv does as intended)
 		files_affected=$(find . -maxdepth 1 -iname "$test" -execdir ls {} + -quit)
