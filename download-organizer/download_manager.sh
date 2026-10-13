@@ -9,7 +9,7 @@ main_path=/mnt/c/Users/rodol/Downloads
 
 common_file_extensions=("pdf" "png" "jpg" "txt" "jpeg") # ("txt") # ("pdf" "png" "jpg" "txt")
 status_separator=$(printf '%0.s-' {1..23})
-special_status=()
+# special_status=()
 
 # Jump to the target directory for simpler management
 original_path=$PWD
@@ -29,13 +29,13 @@ cd "${main_path}"
 
 		# Create the folder that stores target files if it didn't exist
 		target_dir="${extension}_dir"
-		folder_status=$(mkdir -p -v "${target_dir}")
-		echo "Status to display: ${folder_status}"
+		# folder_status=$(mkdir -p -v "${target_dir}")
+		# echo "Status to display: ${folder_status}"
 
-		if [[ $(printf "%s" "${folder_status}" | wc -l) -eq 1 ]]; then
-			echo "Print this out"
-			special_status+=("${folder_status}")
-		fi
+		# if [[ $(printf "%s" "${folder_status}" | wc -l) -eq 1 ]]; then
+		# 	echo "Print this out"
+		# 	special_status+=("${folder_status}")
+		# fi
 
 		# Dry run of ls (until I'm sure mv does as intended)
 		files_affected=$(find . -maxdepth 1 -iname "${expanded_ext}" -execdir ls {} + -quit)
