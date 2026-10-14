@@ -10,10 +10,24 @@ Below is a high-level overview of each directory:
 # download-organizer (ongoing, name will be changed to in the forseeable future)
 A bash script that organizes files within the target directory itself (currently the Downloads folder, but will be updated), but NOT any with subdirectories (so it shouldn't target any of your downloads/tools that have critical files). These files will be organized by their file extensions.
 
+## Progress Status: Operable, but incomplete
+Basic functionality works, but script currently only prints 1 file of each file extension rather than move them to ensure everything works as intended.
+
 # file-archiving (ongoing)
 This is a Bash script that is designed to help me organize my files, particularly my classwork from CU Boulder.
 
 Currently deciding what functionality I should add into this to make it a reliable tool.
+
+## Progress Status: Incomplete
+`archivemanager` is still in development. Not yet operable.
+
+# warframe-tracking (ongoing)
+This is a Bash script that would help me track some prime sets on Warframe without constantly opening my inventory.
+
+Yes, it's not necessary, like at all. But it's fun.
+
+## Progress Status: Incomplete
+Currently in initial stages. Will focus on this once significant progress is made with the other scripts.
 
 # windows-audio-fix (ongoing)
 C++ script that, when compiled, will restart the Window services responsible for the audio.
@@ -22,7 +36,5 @@ This script makes use of functions within the Win32 API, particularly those dire
 
 You would also need to run this (as an executable) with Administrator Privileges as the functionality to modify the state of a given service is restricted to admin only. SCM allows anyone to look at the services (e.g., `OpenServiceW`) with certain rights, but doing anything more with them (e.g., `StartServiceW`) requires elevated privileges.
 
-# warframe-tracking (ongoing)
-This is a Bash script that would help me track some prime sets on Warframe without constantly opening my inventory.
-
-Yes, it's not necessary, like at all. But it's fun.
+## Progress Status: Incomplete
+Not yet operable. Currently testing dynamic memory allocation and reading the documentation for some of the `Win32` functionality.
