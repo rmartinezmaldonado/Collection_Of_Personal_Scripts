@@ -10,6 +10,10 @@ The original Bash script that I've been using. This was mainly responsible for m
 This is meant to be a more comprehensive version of `archiveclasswork`
 
 # Why does this exist?
-This is purely for convenience as I was extremely annoyed with running `mv (long file paths)` commands everytime I downloaded something from class and especially files from my Linux SysAdmin network.
+This is purely for convenience as I was extremely annoyed with running `mv (long file paths)` commands everytime I downloaded something from class and especially files in my linux system network (see CSCI 5113).
 
 # How to get this to work
+```
+archivemanager.sh
+```
+`archiveclasswork` is, ironically, archived since it was used for moving files that I worked in my linux system class.

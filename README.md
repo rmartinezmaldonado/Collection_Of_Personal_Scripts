@@ -8,10 +8,10 @@ Each folder will have a README.md to explain the purpose of each script as well 
 Below is a high-level overview of each directory:
 ---
 # download-organizer (ongoing, name will be changed to in the forseeable future)
-A bash script that organizes files within the target directory itself (currently the Downloads folder, but will be updated), but NOT any with subdirectories (so it shouldn't target any of your downloads/tools that have critical files). These files will be organized by their file extensions.
+A bash script that organizes files, based on their file extensions, within the target directory itself (currently the Downloads folder, but will be updated), but NOT any within subdirectories (so it shouldn't target any downloads/tools that have critical files).
 
 ## Progress Status: Operable, but incomplete
-Basic functionality works, but script currently only prints 1 file of each file extension rather than move them to ensure everything works as intended.
+Basic functionality works, but script currently performs a dry run only (no moving to target folders yet) to ensure everything works as intended.
 
 # file-archiving (ongoing)
 This is a Bash script that is designed to help me organize my files, particularly my classwork from CU Boulder.
@@ -19,7 +19,7 @@ This is a Bash script that is designed to help me organize my files, particularl
 Currently deciding what functionality I should add into this to make it a reliable tool.
 
 ## Progress Status: Incomplete
-`archivemanager` is still in development. Not yet operable.
+`archivemanager` is still in development. Not yet operable. `archiveclasswork` is operable, but it isn't as flexible as `archivemanager` would be: has very fixed targets that it looks at so you would need to tinker with it to change it.
 
 # warframe-tracking (ongoing)
 This is a Bash script that would help me track some prime sets on Warframe without constantly opening my inventory.
@@ -27,7 +27,7 @@ This is a Bash script that would help me track some prime sets on Warframe witho
 Yes, it's not necessary, like at all. But it's fun.
 
 ## Progress Status: Incomplete
-Currently in initial stages. Will focus on this once significant progress is made with the other scripts.
+Currently in initial stages. Essentially on the backburner as I want to prioritize my other scripts.
 
 # windows-audio-fix (ongoing)
 C++ script that, when compiled, will restart the Window services responsible for the audio.
