@@ -2,12 +2,15 @@
 
 set -euo pipefail
 
+# BIG TODO: transform this into a multi-purpose utility script based on flags mentioned in main README
+
+
 # Global variables
 
 # Currently focuses on the Downloads but it will be changed in the future
 main_path=/mnt/c/Users/rodol/Downloads
 
-common_file_extensions=("pdf" "png" "jpg" "txt" "jpeg") # ("txt") # ("pdf" "png" "jpg" "txt")
+common_file_extensions=("pdf" "png" "jpg" "txt" "jpeg" "dummy" "docx")
 status_separator=$(printf '%0.s-' {1..23})
 
 # Jump to the target directory for simpler management
@@ -17,50 +20,62 @@ cd "${main_path}"
 
 
 # Begin organizing the target directory without altering the subdirectories
-# echo "File Extension Status"
-# printf "\n\n"
 {
-	echo "Extension Type | File Count Moved/(ls) | Special Notes"
+	echo "Extension Type | File Count | Special Notes"
 	echo "${status_separator}|${status_separator}|${status_separator}"
 	for extension in "${common_file_extensions[@]}"; do
 		# Create and flush the special statuses array
 		special_status=()
 
-		# Currently testing scope of the following
-		expanded_ext="*.${extension}"
+		# Using mapfile and process substitution to create a file array
+		mapfile -t target_files < <(find . -maxdepth 1 -iname "*.${extension}")
 
-		# Create the folder that stores target files if it didn't exist
-		target_dir="${extension}_dir"
-		folder_status=$(mkdir -p -v "${target_dir}")
 
-		# Let user know at the end of breakdown that directory was created
-		if [[ -n "${folder_status}" ]]; then
-			special_status+=("${folder_status}")
+		# Only create directories for extensions found
+		if [[ ${#target_files[@]} != 0 ]]; then
+			# Create the folder that stores target files if it didn't exist
+			folder_status=$(mkdir -p -v "${extension}_dir")
+
+			# Let user know at the end of breakdown that directory was created
+			if [[ -n "${folder_status}" ]]; then
+				# Remove 'mkdir:' and capitalize 'created'
+				special_status+=("$(echo "${folder_status}" | cut -d ' ' -f 2- | sed 's/created/Created/')")
+			fi
 		fi
 
-		# Dry run of ls (until I'm sure mv does as intended)
-		#files_affected=$(find . -maxdepth 1 -iname "${expanded_ext}" -execdir ls {} +)
 
-
-		# Using mapfile and process substitution to create a file array
-		mapfile -t target_files < <(find . -maxdepth 1 -iname "${expanded_ext}")
 
 		# Get running count for size ranges
 		declare -i size_less_than_1M=0
 		declare -i size_1M_to_10M=0
 		declare -i size_more_than_10M_to_50M=0
 		declare -i size_more_than_50M=0
-		for file in "${target_files[@]}"; do
-			getSize=$(stat -c "%s" "${file}")
 
-			if (( getSize < 1024 * 1024)); then
+		# Track largest file
+		largest_file=""
+
+		# Start with first file if there are any files
+		if [[ ${#target_files[@]} != 0 ]]; then
+			largest_file="${target_files[0]}"
+		fi
+
+		for file in "${target_files[@]}"; do
+			get_size=$(stat -c "%s" "${file}")
+
+			if (( get_size < 1024 * 1024)); then
 				size_less_than_1M+=1
-			elif (( getSize >= 1024 * 1024)) && (( getSize <= 1024 * 1024 * 10)); then
+			elif (( get_size >= 1024 * 1024)) && (( get_size <= 1024 * 1024 * 10)); then
 				size_1M_to_10M+=1
-			elif (( getSize > 1024 * 1024 * 10)) && (( getSize <= 1024 * 1024 * 50)); then
+			elif (( get_size > 1024 * 1024 * 10)) && (( get_size <= 1024 * 1024 * 50)); then
 				size_more_than_10M_to_50M+=1
 			else
 				size_more_than_50M+=1
+			fi
+
+			largest_size=$(stat -c "%s" "${largest_file}")
+			if (( get_size > largest_size )); then
+				# Update largest_file
+				largest_file="${file}"
 			fi
 		done
 
@@ -78,11 +93,16 @@ cd "${main_path}"
 			special_status+=("${size_more_than_50M} files sized > 50M")
 		fi
 
-		# Record file count
-		# file_ext_count=$(echo "${files_affected}" | wc -l)
+		# TODO: Do the file moving here
+
+
 
 		# Perform sequential status breakdown
-		echo "${extension} | ${#target_files[@]} | Check first file: ${target_files[0]}"
+		if [[ ${#target_files[@]} == 0 ]]; then
+			echo "${extension} | ${#target_files[@]} | No files found"
+		else
+			echo "${extension} | ${#target_files[@]} | Largest file: ${largest_file}"
+		fi
 
 		# Print out any special statuses that need to be reported
 		for status in "${special_status[@]}"; do

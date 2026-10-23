@@ -13,6 +13,12 @@ A bash script that organizes files, based on their file extensions, within the t
 ## Progress Status: Operable, but incomplete
 Basic functionality works, but script currently performs a dry run only (no moving to target folders yet) to ensure everything works as intended.
 
+Also intend to make this into a multi-purpose script that implementing the following flags:
+ - `--audit` (default): Essentially what the script is doing
+ - `--move`: Intended goal of this script. This will override the hidden `--audit` flag unless the user explicitly sets `--move` and `--audit` together, in which both are run.
+ - `--add`: Allow the user to provide additional file extensions they would like to target
+ - `--help`: Will print out the above. Will override every other flag set, including the hidden `--audit` flag.
+
 # file-archiving (ongoing)
 This is a Bash script that is designed to help me organize my files, particularly my classwork from CU Boulder.
 
