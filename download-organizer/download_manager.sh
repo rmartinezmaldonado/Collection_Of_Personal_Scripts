@@ -13,6 +13,70 @@ main_path=/mnt/c/Users/rodol/Downloads
 common_file_extensions=("pdf" "png" "jpg" "txt" "jpeg" "dummy" "docx")
 status_separator=$(printf '%0.s-' {1..23})
 
+# Operation flags in order of execution
+ADD_flag=0
+AUDIT_flag=0
+MOVE_flag=0
+
+
+# Global functions
+
+help() {
+	# Display the help functionality
+	echo "Help flag is triggered, override all other flags"
+	
+	echo "Syntax (for now): $(basename $0) <flags>"
+	echo ""
+	echo "Flag options"
+	echo "--help: Print this page"
+	echo "--audit: Print a deep analysis of file globs for each file extension"
+	echo "     Will print: Total amount of bytes analyzed, size breakdown, and any other special statuses"
+	echo "--move: Move file globs of each file extension to their pre-designated subdirectories within the parent folder"
+	echo "--add: Allow script to target additional file extensions, along with default set of file extensions"
+	echo "     Note: Only the file extension itself, do not include the delimiter '.'"
+	echo "          Ex: 'yaml' is fine, '.yaml' will throw an error though"
+	echo ""
+	echo "     Default set currently used by script: (${common_file_extensions[@]})"
+}
+
+
+# Print an error if no arguments were set
+if [[ $# == 0 ]]; then
+	echo "Missing arguments"
+	echo "Try '$0 --help' for more information"
+	exit 1
+fi
+
+for option in "$@"; do
+	if [[ "${option}" == "--help" ]]; then
+		# No need to look at other flags since this overrides ALL
+		help
+
+		# Only print the help function and nothing else
+		exit 0
+
+	elif [[ "${option}" == "--add" ]]; then
+		# echo "Setting add flag"
+		ADD_flag=1
+
+	elif [[ "${option}" == "--audit" ]]; then
+		# echo "Setting audit flag"
+		AUDIT_flag=1
+
+	elif [[ "${option}" == "--move" ]]; then
+		# echo "Setting move flag"
+		MOVE_flag=1
+
+	fi
+done
+
+echo "ADD_flag=${ADD_flag}"
+echo "AUDIT_flag=${AUDIT_flag}"
+echo "MOVE_flag=${MOVE_flag}"
+
+
+
+
 # Jump to the target directory for simpler management
 original_path=$PWD
 echo "Jumping to ${main_path}"
@@ -42,7 +106,6 @@ cd "${main_path}"
 				special_status+=("$(echo "${folder_status}" | cut -d ' ' -f 2- | sed 's/created/Created/')")
 			fi
 		fi
-
 
 
 		# Get running count for size ranges
