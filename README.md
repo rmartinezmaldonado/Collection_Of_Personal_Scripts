@@ -7,17 +7,19 @@ Each folder will have a README.md to explain the purpose of each script as well 
 
 Below is a high-level overview of each directory:
 ---
-# download-organizer (ongoing, name will be changed to in the forseeable future)
-A bash script that organizes files, based on their file extensions, within the target directory itself (currently the Downloads folder, but will be updated), but NOT any within subdirectories (so it shouldn't target any downloads/tools that have critical files).
+# download-organizer (ongoing)
+A Bash script that performs various functions on file extension globs within the target directory only (e.g., will not target any subdirectories so it shouldn't target any downloads/tools that share file extensions).
+
+Currently, target directory is my Downloads folder (hence the name of the script), but this will be updated later.
 
 ## Progress Status: Operable, but incomplete
-Basic functionality works, but script currently performs a dry run only (no moving to target folders yet) to ensure everything works as intended.
+Basic functionality works, but script is currently capable of performing a deep analysis only
 
-Also intend to make this into a multi-purpose script that implementing the following flags:
- - `--audit` (default): Essentially what the script is doing
- - `--move`: Intended goal of this script. This will override the hidden `--audit` flag unless the user explicitly sets `--move` and `--audit` together, in which both are run.
- - `--add`: Allow the user to provide additional file extensions they would like to target
- - `--help`: Will print out the above. Will override every other flag set, including the hidden `--audit` flag.
+Here is the progress for each flag so far:
+ - `--audit`: Functionality complete, only need to tie into its flag correctly
+ - `--move`: Incomplete, but will work on soon after I fully check that script reads only target directory
+ - `--add`: Incomplete
+ - `--help`: Flag integration complete, but help menu needs more polishing
 
 # file-archiving (ongoing)
 This is a Bash script that is designed to help me organize my files, particularly my classwork from CU Boulder.
