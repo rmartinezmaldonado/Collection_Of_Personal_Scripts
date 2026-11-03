@@ -27,14 +27,6 @@ Currently deciding what functionality I should add into this to make it a reliab
 ## Progress Status: Incomplete
 `archivemanager` is still in development. Not yet operable. `archiveclasswork` is operable, but it isn't as flexible as `archivemanager` would be: has very fixed targets that it looks at so you would need to tinker with it to change it.
 
-# warframe-tracking (ongoing)
-This is a Bash script that would help me track some prime sets on Warframe without constantly opening my inventory.
-
-Yes, it's not necessary, like at all. But it's fun.
-
-## Progress Status: Incomplete
-Currently in initial stages. Essentially on the backburner as I want to prioritize my other scripts.
-
 # windows-audio-fix (ongoing)
 C++ script that, when compiled, will restart the Window services responsible for the audio.
 
