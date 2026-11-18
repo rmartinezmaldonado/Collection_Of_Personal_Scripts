@@ -25,7 +25,7 @@ help() {
 	# Display the help functionality
 	echo "Help flag is triggered, override all other flags"
 	
-	echo "Syntax (for now): $(basename $0) <flags>"
+	echo "Syntax (for now): $(basename "$0") <flags>"
 	echo ""
 	echo "Flag options"
 	echo "--help: Print this page"
@@ -33,17 +33,18 @@ help() {
 	echo "     Will print: Total amount of bytes analyzed, size breakdown, and any other special statuses"
 	echo "--move: Move file globs of each file extension to their pre-designated subdirectories within the parent folder"
 	echo "--add: Allow script to target additional file extensions, along with default set of file extensions"
-	echo "     Note: Only the file extension itself, do not include the delimiter '.'"
+	echo "     - Only the file extension itself, do not include the delimiter '.'"
 	echo "          Ex: 'yaml' is fine, '.yaml' will throw an error though"
+	echo "     Note: This is a complimentary flag. It must be run with other flags like '--move' or '--audit' to be useful."
 	echo ""
-	echo "     Default set currently used by script: (${common_file_extensions[@]})"
+	echo "     Default set currently used by script: (${common_file_extensions[*]})"
 }
 
 
 # Print an error if no arguments were set
 if [[ $# == 0 ]]; then
 	echo "Missing arguments"
-	echo "Try '$0 --help' for more information"
+	echo "Try '"$0" --help' for more information"
 	exit 1
 fi
 
@@ -75,6 +76,21 @@ echo "AUDIT_flag=${AUDIT_flag}"
 echo "MOVE_flag=${MOVE_flag}"
 
 
+# Check if any flags were set
+if [[ $ADD_flag == 0 && $AUDIT_flag == 0 && $MOVE_flag == 0 ]]; then
+	echo "No flags were set. Please run "$0" with proper arguments."
+	exit 2
+fi
+
+# The --add flag is complimentary. Check that
+if [[ $ADD_flag == 1 ]]; then
+	if [[ $AUDIT_flag == 0 && $MOVE_flag == 0 ]]; then
+		echo "Warning: The '--add' argument is designed to be complimentary to other critical arguments."
+		echo "Terminating gracefully"
+		exit 3
+	fi
+fi
+
 
 
 # Jump to the target directory for simpler management
@@ -95,18 +111,29 @@ cd "${main_path}"
 		mapfile -t target_files < <(find . -maxdepth 1 -iname "*.${extension}")
 
 
-		# Only create directories for extensions found
-		if [[ ${#target_files[@]} != 0 ]]; then
-			# Create the folder that stores target files if it didn't exist
-			folder_status=$(mkdir -p -v "${extension}_dir")
 
-			# Let user know at the end of breakdown that directory was created
-			if [[ -n "${folder_status}" ]]; then
-				# Remove 'mkdir:' and capitalize 'created'
-				special_status+=("$(echo "${folder_status}" | cut -d ' ' -f 2- | sed 's/created/Created/')")
+		# ----------------------------------------------------------
+		# Directory Setup
+		# ----------------------------------------------------------
+
+		# Only create the directory if you're ready to move files
+		if [[ $MOVE_flag == 1 ]]; then
+
+			# Only create directories for extensions found
+			if [[ ${#target_files[@]} != 0 ]]; then
+				# Create the folder that stores target files if it didn't exist
+				folder_status=$(mkdir -p -v "${extension}_dir")
+
+				# Let user know at the end of breakdown that directory was created
+				if [[ -n "${folder_status}" ]]; then
+					# Remove 'mkdir:' and capitalize 'created'
+					special_status+=("$(echo "${folder_status}" | cut -d ' ' -f 2- | sed 's/created/Created/')")
+				fi
 			fi
 		fi
 
+		# Total glob size
+		running_count=0
 
 		# Get running count for size ranges
 		declare -i size_less_than_1M=0
@@ -124,47 +151,61 @@ cd "${main_path}"
 
 		for file in "${target_files[@]}"; do
 			get_size=$(stat -c "%s" "${file}")
+			(( running_count+= get_size ))
 
-			if (( get_size < 1024 * 1024)); then
-				size_less_than_1M+=1
-			elif (( get_size >= 1024 * 1024)) && (( get_size <= 1024 * 1024 * 10)); then
-				size_1M_to_10M+=1
-			elif (( get_size > 1024 * 1024 * 10)) && (( get_size <= 1024 * 1024 * 50)); then
-				size_more_than_10M_to_50M+=1
-			else
-				size_more_than_50M+=1
-			fi
 
-			largest_size=$(stat -c "%s" "${largest_file}")
-			if (( get_size > largest_size )); then
-				# Update largest_file
-				largest_file="${file}"
+			if [[ $AUDIT_flag == 1 ]]; then
+
+				if (( get_size < 1024 * 1024)); then
+					size_less_than_1M+=1
+				elif (( get_size >= 1024 * 1024)) && (( get_size <= 1024 * 1024 * 10)); then
+					size_1M_to_10M+=1
+				elif (( get_size > 1024 * 1024 * 10)) && (( get_size <= 1024 * 1024 * 50)); then
+					size_more_than_10M_to_50M+=1
+				else
+					size_more_than_50M+=1
+				fi
+
+				largest_size=$(stat -c "%s" "${largest_file}")
+				if (( get_size > largest_size )); then
+					# Update largest_file
+					largest_file="${file}"
+				fi
+
 			fi
 		done
 
-		# Start adding size breakdowns to the special_status array
-		if (( size_less_than_1M > 0)); then
-			special_status+=("${size_less_than_1M} files sized < 1M")
-		fi
-		if (( size_1M_to_10M > 0)); then
-			special_status+=("${size_1M_to_10M} files sized >= 1M and <= 10M")
-		fi
-		if (( size_more_than_10M_to_50M > 0)); then
-			special_status+=("${size_more_than_10M_to_50M} files sized > 10M and <= 50M")
-		fi
-		if (( size_more_than_50M > 0)); then
-			special_status+=("${size_more_than_50M} files sized > 50M")
+		if [[ $AUDIT_flag == 1 && ${#target_files[@]} != 0 ]]; then
+			special_status+=("Largest file: ${largest_file}")
+			:
 		fi
 
-		# TODO: Do the file moving here
+		
+		if [[ $AUDIT_flag == 1 ]]; then
 
+			# Start adding size breakdowns to the special_status array
+			if (( size_less_than_1M > 0)); then
+				special_status+=("${size_less_than_1M} files sized < 1M")
+			fi
+			if (( size_1M_to_10M > 0)); then
+				special_status+=("${size_1M_to_10M} files sized >= 1M and <= 10M")
+			fi
+			if (( size_more_than_10M_to_50M > 0)); then
+				special_status+=("${size_more_than_10M_to_50M} files sized > 10M and <= 50M")
+			fi
+			if (( size_more_than_50M > 0)); then
+				special_status+=("${size_more_than_50M} files sized > 50M")
+			fi
+
+		fi
 
 
 		# Perform sequential status breakdown
 		if [[ ${#target_files[@]} == 0 ]]; then
 			echo "${extension} | ${#target_files[@]} | No files found"
 		else
-			echo "${extension} | ${#target_files[@]} | Largest file: ${largest_file}"
+			# echo "${extension} | ${#target_files[@]} | Largest file: ${largest_file}"
+			echo "${extension} | ${#target_files[@]} | Total size affected: ${running_count}"
 		fi
 
 		# Print out any special statuses that need to be reported
@@ -173,6 +214,11 @@ cd "${main_path}"
 		done
 
 		echo "${status_separator}|${status_separator}|${status_separator}"
+
+		if [[ $MOVE_flag == 1 ]]; then
+			# echo "Do the moving functionality here"
+			:
+		fi
 	done
 } | column -t -s '|' -o '|'
 

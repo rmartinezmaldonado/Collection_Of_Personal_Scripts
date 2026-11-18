@@ -2,16 +2,23 @@
 
 # What is this
 This is a Bash script that is designed to target file extension globs within the target directory and perform the following functions based on flags used:
+- `--move`: Organize all file extension globs to their respective subdirectories (right now it's {file_extension}_dir). The script will only print out the following summary:
+    - File count
+    - Cumulative file size
+    - Whether the subdirectory was created (will be silent if it already exists)
 - `--audit`: Provide a deep analysis of each glob. The analysis in question is as follows:
-    - Total size count
+    - File count (shared with `--move`)
+    - Cumulative file size (shared with `--move`)
+    - Whether the subdirectory was created (shared with `--move`)
     - Largest file found
     - Size range breakdown:
         - Count of files with size between 0MB and 1MB (exclusive)
         - Count of files with size between 1MB (inclusive) and 10MB (inclusive)
         - Count of files with size between 10MB (exclusive) and 50MB (inclusive)
         - Count of files with size greater than 50MB
-- `--move`: Organize all file extension globs to their respective subdirectories (right now it's {file_extension}_dir)
-- `--add`: Allow the user to provide additional file extensions they would like to target
+- `--add`: Allow the user to specify additional file extensions to target alongside the default set
+    - (Syntax planned: --add ext1 ext2)
+    - Note: This argument is complimentary to other arguments. The script will terminate early if no other arguments are detected.
 - `--help`: Will print out the help menu. Will override every other flag set.
 
 The scope of this script is intentionally limited to the files on the directory itself, so it will not look into other subdirectories. This is intended to ensure that other applications or tools you're using don't have their critical components transferred over to the storage folders.
