@@ -2,7 +2,12 @@
 
 set -euo pipefail
 
-# BIG TODO: transform this into a multi-purpose utility script based on flags mentioned in main README
+# -------------------------------------------------------------------------------
+# Exit codes:
+# 0      Script terminated successfully
+# 1      Script was ran without any command-line arguments
+# 2      Script was ran without critical command-line arguments (--move/--audit)
+# -------------------------------------------------------------------------------
 
 
 # Global variables
@@ -10,7 +15,7 @@ set -euo pipefail
 # Currently focuses on the Downloads but it will be changed in the future
 main_path=/mnt/c/Users/rodol/Downloads
 
-common_file_extensions=("pdf" "png" "jpg" "txt" "jpeg" "dummy" "docx")
+common_file_extensions=("pdf" "png" "jpg" "txt" "jpeg" "dummy" "docx" "mp4" "jfif")
 status_separator=$(printf '%0.s-' {1..23})
 
 # Operation flags in order of execution
@@ -44,7 +49,7 @@ help() {
 # Print an error if no arguments were set
 if [[ $# == 0 ]]; then
 	echo "Missing arguments"
-	echo "Try '"$0" --help' for more information"
+	echo "Try '$0 --help' for more information"
 	exit 1
 fi
 
@@ -75,22 +80,12 @@ echo "ADD_flag=${ADD_flag}"
 echo "AUDIT_flag=${AUDIT_flag}"
 echo "MOVE_flag=${MOVE_flag}"
 
-
-# Check if any flags were set
-if [[ $ADD_flag == 0 && $AUDIT_flag == 0 && $MOVE_flag == 0 ]]; then
-	echo "No flags were set. Please run "$0" with proper arguments."
+# Check if either --move or --audit are set as they're the main functionalities of the script
+if [[ $AUDIT_flag == 0 && $MOVE_flag == 0 ]]; then
+	echo "Warning: '--move' and '--audit' are critical arguments. Either must be present."
+	echo "Terminating script."
 	exit 2
 fi
-
-# The --add flag is complimentary. Check that
-if [[ $ADD_flag == 1 ]]; then
-	if [[ $AUDIT_flag == 0 && $MOVE_flag == 0 ]]; then
-		echo "Warning: The '--add' argument is designed to be complimentary to other critical arguments."
-		echo "Terminating gracefully"
-		exit 3
-	fi
-fi
-
 
 
 # Jump to the target directory for simpler management
@@ -106,9 +101,10 @@ cd "${main_path}"
 	for extension in "${common_file_extensions[@]}"; do
 		# Create and flush the special statuses array
 		special_status=()
+		target_dir="${extension}_dir"
 
 		# Using mapfile and process substitution to create a file array
-		mapfile -t target_files < <(find . -maxdepth 1 -iname "*.${extension}")
+		mapfile -t target_files < <(find . -maxdepth 1 -type f -iname "*.${extension}")
 
 
 
@@ -122,7 +118,7 @@ cd "${main_path}"
 			# Only create directories for extensions found
 			if [[ ${#target_files[@]} != 0 ]]; then
 				# Create the folder that stores target files if it didn't exist
-				folder_status=$(mkdir -p -v "${extension}_dir")
+				folder_status=$(mkdir -p -v "${target_dir}")
 
 				# Let user know at the end of breakdown that directory was created
 				if [[ -n "${folder_status}" ]]; then
@@ -131,6 +127,12 @@ cd "${main_path}"
 				fi
 			fi
 		fi
+
+
+
+		# ----------------------------------------------------------
+		# File Size Analysis
+		# ----------------------------------------------------------
 
 		# Total glob size
 		running_count=0
@@ -151,7 +153,7 @@ cd "${main_path}"
 
 		for file in "${target_files[@]}"; do
 			get_size=$(stat -c "%s" "${file}")
-			(( running_count+= get_size ))
+			(( running_count+= get_size )) || true
 
 
 			if [[ $AUDIT_flag == 1 ]]; then
@@ -175,13 +177,11 @@ cd "${main_path}"
 			fi
 		done
 
-		if [[ $AUDIT_flag == 1 && ${#target_files[@]} != 0 ]]; then
-			special_status+=("Largest file: ${largest_file}")
-			:
-		fi
-
-		
+		# These are necessary only when the audit flag is set
 		if [[ $AUDIT_flag == 1 ]]; then
+			if [[ ${#target_files[@]} != 0 ]]; then
+				special_status+=("Largest file: ${largest_file}")
+			fi
 
 			# Start adding size breakdowns to the special_status array
 			if (( size_less_than_1M > 0)); then
@@ -200,6 +200,11 @@ cd "${main_path}"
 		fi
 
 
+
+		# ----------------------------------------------------------
+		# Sequential Status breakdown and final actions
+		# ----------------------------------------------------------
+
 		# Perform sequential status breakdown
 		if [[ ${#target_files[@]} == 0 ]]; then
 			echo "${extension} | ${#target_files[@]} | No files found"
@@ -208,17 +213,19 @@ cd "${main_path}"
 			echo "${extension} | ${#target_files[@]} | Total size affected: ${running_count}"
 		fi
 
+		# Move all files if the move flag is set; done last to ensure analysis, if any, is done without issues
+		if [[ $MOVE_flag == 1 && ${#target_files[@]} -gt 0 ]]; then
+			# echo " | | Do the moving functionality here"
+			# mv -- "${target_files[@]}" "${target_dir}"
+			:
+		fi
+
 		# Print out any special statuses that need to be reported
 		for status in "${special_status[@]}"; do
 			echo " | | ${status}"
 		done
 
 		echo "${status_separator}|${status_separator}|${status_separator}"
-
-		if [[ $MOVE_flag == 1 ]]; then
-			# echo "Do the moving functionality here"
-			:
-		fi
 	done
 } | column -t -s '|' -o '|'
 
